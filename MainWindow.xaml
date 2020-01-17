@@ -1,0 +1,541 @@
+﻿<Window
+    x:Class="WPFMT.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:WPFMT"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="clr-namespace:System;assembly=System"
+    xmlns:system="clr-namespace:System;assembly=mscorlib"
+    x:Name="WinPrime"
+    Width="700"
+    Height="450"
+    Closing="Window_Closing"
+    MouseLeftButtonDown="Window_MouseLeftButtonDown"
+    ResizeMode="NoResize"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None"
+    mc:Ignorable="d">
+
+    <Window.Resources>
+
+        <Color x:Key="BackgroudColor">#FFBDC1E4</Color>
+
+        <local:RunTypeConvertor x:Key="RunTypeConvertor" />
+
+        <Style x:Key="IsVisibility" TargetType="ProgressBar">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsRunning}" Value="False">
+                    <Setter Property="Visibility" Value="Hidden" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DisableOnRunning" TargetType="{x:Type Control}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsRunning}" Value="False">
+                    <Setter Property="IsEnabled" Value="True" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                    <Setter Property="IsEnabled" Value="False" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style
+            x:Key="ErrorWithDisableOnRunning"
+            BasedOn="{StaticResource DisableOnRunning}"
+            TargetType="TextBox">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="ToolTip" Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style
+            x:Key="FlatButton"
+            BasedOn="{StaticResource DisableOnRunning}"
+            TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            Margin="0"
+                            Background="#FFF7F7FD"
+                            BorderThickness="0"
+                            CornerRadius="0"
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}">
+                            <ContentPresenter
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                RecognizesAccessKey="True"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Window.Triggers>
+
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard Storyboard.TargetProperty="Opacity" Duration="00:00:01">
+                    <DoubleAnimation From="0" To="1" />
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+
+        <EventTrigger RoutedEvent="Unloaded">
+            <BeginStoryboard>
+                <Storyboard Name="FormFadeOut" Completed="FormFadeOut_Completed">
+                    <DoubleAnimation
+                        Name="FormFadeOutAnimation"
+                        Storyboard.TargetName="WinPrime"
+                        Storyboard.TargetProperty="Opacity"
+                        From="1.0"
+                        To="0.0"
+                        Duration="0:0:1" />
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+
+    </Window.Triggers>
+
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="100*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+
+            <Grid>
+                <Grid.RowDefinitions />
+
+                <Grid.Background>
+                    <SolidColorBrush Color="{StaticResource BackgroudColor}" />
+                </Grid.Background>
+
+                <TextBlock
+                    Margin="2,418,-315,-27"
+                    FontFamily="Arial Black"
+                    FontSize="45"
+                    Foreground="White"
+                    Text=" Multithreading">
+                    <TextBlock.RenderTransform>
+                        <TransformGroup>
+                            <RotateTransform Angle="-90" />
+                        </TransformGroup>
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+            </Grid>
+
+        </Grid>
+
+        <Grid Grid.Column="1">
+
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                    <GradientStop Offset="0" Color="White" />
+                    <GradientStop Offset="1" Color="{StaticResource BackgroudColor}" />
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="22*" />
+                <RowDefinition Height="70*" />
+                <RowDefinition Height="40*" />
+                <RowDefinition Height="65*" />
+                <RowDefinition Height="40*" />
+                <RowDefinition Height="200*" />
+                <RowDefinition Height="22*" />
+            </Grid.RowDefinitions>
+            <Rectangle Grid.Row="0">
+                <Rectangle.Fill>
+                    <SolidColorBrush Color="White" />
+                </Rectangle.Fill>
+                <Rectangle.Effect>
+                    <DropShadowEffect Opacity="0.3" />
+                </Rectangle.Effect>
+
+            </Rectangle>
+
+            <StackPanel Grid.Row="1" Orientation="Vertical">
+                <TextBlock
+                    Width="390"
+                    Height="49.292"
+                    Margin="10,0,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    FontFamily="Shruti"
+                    FontSize="38"
+                    FontWeight="Heavy"
+                    Text="Find the Prime"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    Margin="10,0,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    FontFamily="Shruti"
+                    FontSize="14"
+                    FontWeight="Heavy"
+                    Text="This demo uses the C# multi-task features to find the prime numbers between two integers."
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <Grid Grid.Row="0">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button
+                    Grid.Column="1"
+                    Width="25"
+                    Height="25"
+                    Padding="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    BorderThickness="0"
+                    Click="Button_Click">
+                    <Image
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        RenderSize="12,12"
+                        RenderTransformOrigin="-1.974,0.382"
+                        Source="/close-icon.png" />
+                </Button>
+
+            </Grid>
+
+            <Grid Grid.Row="2">
+
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton
+                        x:Name="RadTask"
+                        Height="22"
+                        Margin="25,0,0,0"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding Path=RunOption, Converter={StaticResource RunTypeConvertor}, ConverterParameter={x:Static local:RunType.Tasks}}"
+                        Style="{StaticResource DisableOnRunning}">
+                        <TextBlock
+                            Width="60"
+                            FontFamily="Calibri"
+                            FontSize="20"
+                            FontWeight="Bold"
+                            Foreground="#FF59596B"
+                            Text="Task" />
+                    </RadioButton>
+
+                    <RadioButton
+                        x:Name="RadParallel"
+                        Width="134"
+                        Height="22"
+                        Margin="10,0,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        IsChecked="{Binding Path=RunOption, Converter={StaticResource RunTypeConvertor}, ConverterParameter={x:Static local:RunType.Parallel}}"
+                        Style="{StaticResource DisableOnRunning}">
+                        <TextBlock
+                            Width="120"
+                            FontFamily="Calibri"
+                            FontSize="20"
+                            FontWeight="Bold"
+                            Foreground="#FF59596B"
+                            Text="Parallel For" />
+                    </RadioButton>
+
+                    <RadioButton
+                        x:Name="RadNormal"
+                        Height="22"
+                        Margin="15,0,0,0"
+                        VerticalAlignment="Center"
+                        FontWeight="Bold"
+                        IsChecked="{Binding Path=RunOption, Converter={StaticResource RunTypeConvertor}, ConverterParameter={x:Static local:RunType.Asyn}}"
+                        Style="{StaticResource DisableOnRunning}">
+                        <TextBlock
+                            Width="63"
+                            FontFamily="Calibri"
+                            FontSize="20"
+                            FontWeight="Bold"
+                            Foreground="#FF59596B"
+                            Text="Async" />
+                    </RadioButton>
+                </StackPanel>
+
+            </Grid>
+
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="173*" />
+                    <ColumnDefinition Width="228*" />
+                    <ColumnDefinition Width="Auto" MinWidth="235" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock
+                    Grid.Column="0"
+                    Width="85"
+                    Height="22"
+                    Margin="28,22,0,20"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    FontFamily="Calibri"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Foreground="#FF59596B"
+                    Text="No.of Tasks " />
+                <TextBox
+                    x:Name="TasksRequired"
+                    Grid.Column="0"
+                    Width="42"
+                    Margin="0,21,5,19"
+                    HorizontalAlignment="Right"
+                    FontFamily="Calibri"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Foreground="#FF59596B"
+                    Style="{StaticResource ErrorWithDisableOnRunning}"
+                    Text="{Binding Tasks, StringFormat=##, ValidatesOnNotifyDataErrors=True}" Height="22">
+                    <TextBox.Effect>
+                        <DropShadowEffect Opacity=".3" />
+                    </TextBox.Effect>
+                </TextBox>
+
+                <TextBlock
+                    Grid.Column="1"
+                    Width="39"
+                    Height="22"
+                    Margin="10,22,0,20"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    FontFamily="Calibri"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Foreground="#FF59596B"
+                    Text="From" />
+                <TextBox
+                    x:Name="Start"
+                    Grid.Column="1"
+                    Width="150"
+                    Height="22"
+                    Margin="0,22,10,18"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    FontFamily="Calibri"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Foreground="#FF59596B"
+                    Style="{StaticResource ErrorWithDisableOnRunning}"
+                    Text="{Binding RangeStart, ValidatesOnNotifyDataErrors=True}">
+                    <TextBox.Effect>
+                        <DropShadowEffect Opacity=".3" />
+                    </TextBox.Effect>
+                </TextBox>
+
+                <TextBlock
+                    Grid.Column="2"
+                    Width="17"
+                    Height="22"
+                    Margin="10,22,0,20"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    FontFamily="Calibri"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Foreground="#FF59596B"
+                    Text="To" />
+
+                <TextBox
+                    x:Name="End"
+                    Grid.Column="2"
+                    Width="150"
+                    Height="22"
+                    Margin="0,22,35,18"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    FontFamily="Calibri"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Foreground="#FF59596B"
+                    Style="{StaticResource ErrorWithDisableOnRunning}"
+                    Text="{Binding RangeEnd, ValidatesOnNotifyDataErrors=True}">
+                    <TextBox.Effect>
+                        <DropShadowEffect Opacity=".3" />
+                    </TextBox.Effect>
+                </TextBox>
+            </Grid>
+
+            <Grid Grid.Row="5">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="333*" />
+                    <ColumnDefinition Width="300*" />
+                </Grid.ColumnDefinitions>
+
+                <Rectangle
+                    Grid.Column="1"
+                    Width="270"
+                    Height="148"
+                    Margin="0,25,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Stroke="Black">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                            <GradientStop Offset="0" Color="{StaticResource BackgroudColor}" />
+                            <GradientStop Offset="1" Color="White" />
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                    <Rectangle.Effect>
+                        <DropShadowEffect Opacity=".3" />
+                    </Rectangle.Effect>
+                </Rectangle>
+
+                <ListBox
+                    x:Name="LstPrimesNumber"
+                    Grid.Column="0"
+                    Width="270"
+                    Height="148"
+                    Margin="33,25,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    FontFamily="Calibri"
+                    FontSize="16"
+                    ItemsSource="{Binding lstPrimes}">
+                    <ListBox.Effect>
+                        <DropShadowEffect Opacity=".3" />
+                    </ListBox.Effect>
+                </ListBox>
+                <Grid Margin="50,0,0,0" />
+
+                <TextBlock
+                    x:Name="NumberofPrimes"
+                    Grid.Column="1"
+                    Height="22"
+                    Margin="149,107,38,61"
+                    FontFamily="Calibri"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Foreground="#FF59596B"
+                    Text="{Binding NumberofPrimes, StringFormat=#\,#}" />
+
+                <TextBlock
+                    x:Name="TimeSpan"
+                    Grid.Column="1"
+                    Width="114"
+                    Height="22"
+                    Margin="149,72,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    FontFamily="Calibri"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Foreground="#FF59596B"
+                    Text="{Binding DurationTime}"
+                    TextAlignment="Left" />
+
+                <TextBlock
+                    Grid.Column="1"
+                    Width="117"
+                    Height="22"
+                    Margin="30,72,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    FontFamily="Calibri"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Foreground="#FF59596B"
+                    Text="Duration Time :" />
+
+                <TextBlock
+                    Grid.Column="1"
+                    Width="117"
+                    Height="22"
+                    Margin="30,106,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    FontFamily="Calibri"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    Foreground="#FF59596B"
+                    Text="No. Of Primes :" />
+
+            </Grid>
+
+            <ProgressBar
+                x:Name="ProgressBar"
+                Grid.Row="6"
+                Margin="0,6.5"
+                IsIndeterminate="True"
+                Style="{StaticResource IsVisibility}" />
+            <Button
+                x:Name="BtnRun"
+                Grid.Row="4"
+                Width="100"
+                Height="32"
+                Margin="0,0,36,5"
+                HorizontalAlignment="Right"
+                Background="Transparent"
+                BorderBrush="Black"
+                Command="{Binding cmdDoCalculation}"
+                FontWeight="Bold"
+                IsEnabledChanged="BtnRun_IsEnabledChanged"
+                Style="{StaticResource FlatButton}">
+                <Button.Content>
+                    <Grid Width="{Binding RelativeSource={RelativeSource Self}, Path=Parent.ActualWidth}" Height="{Binding RelativeSource={RelativeSource Self}, Path=Parent.ActualHeight}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <GridSplitter
+                            Width="1"
+                            VerticalAlignment="Stretch"
+                            Background="DarkGray" />
+                        <Image
+                            Grid.Column="0"
+                            Width="25"
+                            Height="25"
+                            Margin="5,0,5,0"
+                            Source="/icon-play.png" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Width="Auto"
+                            Height="Auto"
+                            Margin="15,4,0,0"
+                            FontFamily="Vrinda"
+                            FontSize="18"
+                            Foreground="#FF59596B"
+                            Text="Run" />
+                    </Grid>
+
+                </Button.Content>
+
+                <Button.Effect>
+                    <DropShadowEffect Opacity=".3" />
+                </Button.Effect>
+
+            </Button>
+        </Grid>
+
+    </Grid>
+
+</Window>
